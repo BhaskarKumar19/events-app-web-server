@@ -29,7 +29,7 @@ pipeline {
             steps {
                 echo 'Retrieving source from github' 
                 git branch: 'main',
-                    url: '[GITREPO]'
+                    url: 'https://github.com/BhaskarKumar19/events-app-web-server.git'
                 echo 'Did we get the source?' 
                 sh 'ls -a'
             }
@@ -59,16 +59,16 @@ pipeline {
             steps {
                 echo "build id = ${env.BUILD_ID}"
                 echo 'Tests passed on to build Docker container'
-                sh "gcloud builds submit -t gcr.io/[PROJECTID]/[IMAGE_NAME]:v2.${env.BUILD_ID} ."
+                sh "gcloud builds submit -t gcr.io/april2021-210/web-server-image:v2.${env.BUILD_ID} ."
             }
         }        
          stage('Stage 5') {
             steps {
                 echo 'Get cluster credentials'
-                sh 'gcloud container clusters get-credentials [CLUSTER_NAME] --zone [ZONE] --project [PROJECTID]'
+                sh 'gcloud container clusters get-credentials cluster-1 --zone us-central1-c --project april2021-210'
                 echo 'Update the image'
-                echo "gcr.io/[PROJECTID]/[IMAGE_NAME]:2.${env.BUILD_ID}"
-                sh "kubectl set image deployment/[DEPLOYMENT_NAME] [CONTAINER_NAME]=gcr.io/[PROJECTID]/[IMAGE_NAME]:v2.${env.BUILD_ID} --record"
+                echo "gcr.io/april2021-210/web-server-image:2.${env.BUILD_ID}"
+                sh "kubectl set image deployment/demo-ui demo-ui=gcr.io/april2021-210/web-server-image:v2.${env.BUILD_ID} --record"
             }
         }
     }
